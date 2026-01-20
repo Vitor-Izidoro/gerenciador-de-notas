@@ -1,0 +1,251 @@
+/* Definição das cores padrão (Modo Claro) */
+:root {
+    --bg-app: #ffffff;
+    --bg-sidebar: #f3f3f3;
+    --bg-preview: #fafafa;
+    --bg-hover: #ddd;
+    --text-color: #333333;
+    --border-color: #ccc;
+    --input-bg: #ffffff;
+    --scroll-thumb: #bbb;
+}
+
+/* Definição das cores do Modo Escuro */
+body.dark-mode {
+    --bg-app: #1e1e1e;          /* Fundo principal escuro */
+    --bg-sidebar: #252526;      /* Sidebar um pouco mais clara */
+    --bg-preview: #1e1e1e;      /* Preview igual ao editor */
+    --bg-hover: #37373d;        /* Hover da lista */
+    --text-color: #d4d4d4;      /* Texto cinza claro (não branco puro) */
+    --border-color: #444;       /* Bordas sutis */
+    --input-bg: #3c3c3c;        /* Inputs */
+    --scroll-thumb: #555;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    height: 100vh;
+    background-color: var(--bg-app);
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s; /* Transição suave ao trocar */
+}
+
+#container {
+    display: flex;
+    height: 100%;
+}
+
+/* --- SIDEBAR --- */
+#sidebar {
+    width: 250px;
+    background: var(--bg-sidebar);
+    padding: 10px;
+    box-sizing: border-box;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+/* --- GRAFO (VISUALIZAÇÃO) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Fundo escuro focado */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--bg-app);
+    width: 90%;
+    height: 90%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#mynetwork {
+    width: 100%;
+    height: 100vh; /* Ocupa 100% da altura da tela */
+    min-height: 500px;
+    background: #ffffff; /* Fundo branco para teste */
+    border: 1px solid #ccc;
+    display: block;
+}
+
+
+
+.graph-legend {
+    padding: 5px 15px;
+    font-size: 0.8rem;
+}
+/* Botão de Dark Mode e Nova Nota */
+.sidebar-header div { display: flex; gap: 5px; }
+#toggleTheme {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    border-radius: 5px;
+}
+#toggleTheme:hover {
+    background-color: var(--bg-hover);
+}
+
+#search {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    border-radius: 4px;
+}
+
+#noteList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1; /* Ocupa o espaço restante */
+    overflow-y: auto;
+}
+
+#noteList li {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#noteList li:hover {
+    background: var(--bg-hover);
+}
+
+#newNote {
+    margin-top: 10px;
+    padding: 10px;
+    background: #007acc; /* Azul VS Code */
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+#newNote:hover { background: #005f9e; }
+
+/* --- EDITOR E PREVIEW --- */
+#editorArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#title {
+    font-size: 24px;
+    padding: 15px;
+    border: none;
+    outline: none;
+    background: var(--bg-app);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#editor {
+    flex: 1;
+    padding: 20px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background: var(--bg-app);
+    color: var(--text-color);
+    resize: none;
+}
+
+/* --- ESTILOS DE IMPRESSÃO (PDF) --- */
+@media print {
+    /* Esconde tudo que não é a nota */
+    #sidebar, #editor, #title, #toggleTheme, .sidebar-header {
+        display: none !important;
+    }
+
+    /* Ajusta o container para folha A4 */
+    body, #container, #editorArea {
+        height: auto;
+        overflow: visible;
+        background: white !important; /* Força fundo branco */
+        color: black !important;      /* Força texto preto */
+    }
+
+    /* Configura o Preview para ocupar a folha toda */
+    #preview {
+        display: block !important;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        border: none;
+        padding: 0;
+        margin: 0;
+        background: white !important;
+        color: black !important;
+        position: static; /* Remove restrições de layout */
+    }
+
+    /* Ajuste para códigos não ficarem muito escuros na impressão */
+    code, pre {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        border: 1px solid #ccc;
+    }
+    
+    /* Garante que links wiki fiquem legíveis */
+    .wiki-link {
+        color: #000 !important;
+        text-decoration: underline;
+        border: none;
+    }
+}
+
+#preview {
+    flex: 1;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    overflow-y: auto;
+    background: var(--bg-preview);
+}
+/* --- WIKI LINKS --- */
+.wiki-link {
+    color: #4ec9b0; /* Verde/Azul estilo VS Code */
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px dotted #4ec9b0;
+    transition: all 0.2s;
+}
+
+.wiki-link:hover {
+    background-color: rgba(78, 201, 176, 0.1);
+    border-bottom: 1px solid #4ec9b0;
+}
+/* Scrollbar estilizada para combinar com dark mode */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-sidebar); }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 5px; }

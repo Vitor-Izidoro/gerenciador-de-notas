@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
+               worker-src 'self' blob:; 
+               style-src 'self' 'unsafe-inline'; 
+               img-src 'self' data: blob: filesystem:; 
+               font-src 'self' https://cdn.jsdelivr.net data:;">
+    
+    <title>Notas de Pensamento</title>
+
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="./libs/highlight/style.css">
+
+    <script src="./libs/marked.min.js"></script>
+    <script src="./libs/highlight/highlight.min.js"></script>
+    
+    <script src="./libs/vis-network.min.js"></script>
+
+    <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      startup: { typeset: false }
+    };
+    </script>
+    <script src="./libs/mathjax/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+<div id="container">
+
+    <aside id="sidebar">
+       <div class="sidebar-header">
+            <h2>Notas</h2>
+            <div>
+                <button id="btnGraph" title="Visualização em Grafo">🕸️</button>
+                <button id="btnPdf" title="Exportar PDF">📄</button>
+                <button id="toggleTheme" title="Alternar Tema">🌙</button>
+                <button id="btnDelete" title="Excluir Nota" style="color: #ff6b6b;">🗑️</button>
+            </div>
+        </div>
+        
+        <input type="text" id="search" placeholder="Buscar...">
+        <ul id="noteList"></ul>
+        <button id="newNote">+ Nova nota</button>
+    </aside>
+
+    <main id="editorArea">
+        <input id="title" placeholder="Título da nota">
+        <textarea id="editor" placeholder="Escreva livremente... (Use [[Link]] para conectar notas)"></textarea>
+        <div id="preview"></div>
+    </main>
+
+</div>
+
+<div id="graphModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Mapa Mental Neural</h3>
+            <button id="closeGraph">Fechar X</button>
+        </div>
+        <div class="graph-legend">
+            <span style="color: #97c2fc">● Conectados</span>
+            <span style="color: #ffb7b2">● Isolados</span>
+        </div>
+        <div id="mynetwork"></div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
