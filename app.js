@@ -6,9 +6,10 @@ let currentNote = null;
 const list = document.getElementById("noteList");
 const editor = document.getElementById("editor");
 const titleInput = document.getElementById("title");
+const tagsInput = document.getElementById("tagsInput");
 const preview = document.getElementById("preview");
 const search = document.getElementById("search");
-
+// ...
 // Botões Principais
 const btnNewNote = document.getElementById("newNote");
 const toggleBtn = document.getElementById("toggleTheme");
@@ -144,32 +145,48 @@ function save() {
 function renderList(filter = "") {
     list.innerHTML = "";
 
-    // 1. Filtra pelo texto da busca
-    const filtered = notes.filter(n => n.title.toLowerCase().includes(filter));
+    // LÓGICA DE BUSCA INTELIGENTE
+    // Se começar com #, busca por TAG. Se não, busca por TÍTULO.
+    let filtered = [];
+    if (filter.startsWith("#")) {
+        const tagToSearch = filter.substring(1); // Remove o #
+        filtered = notes.filter(n => n.tags && n.tags.some(t => t.includes(tagToSearch)));
+    } else {
+        filtered = notes.filter(n => n.title.toLowerCase().includes(filter));
+    }
 
-    // 2. Separa em dois grupos: Fixados e Normais
     const pinned = filtered.filter(n => n.pinned === true);
     const others = filtered.filter(n => !n.pinned);
 
-    // Função auxiliar para desenhar o item (para não repetir código)
     const createItem = (n) => {
         const li = document.createElement("li");
-        li.textContent = n.title;
-        if (n.pinned) li.classList.add("pinned-note"); // Estilo amarelo
         
-        if (currentNote && n === currentNote) {
-            li.style.fontWeight = "bold";
-            // Atualiza o estado visual do botão Pin se for a nota atual
-            if(btnPin) {
-                btnPin.classList.toggle("active", !!n.pinned);
-            }
+        // Título da nota
+        const titleSpan = document.createElement("div");
+        titleSpan.textContent = n.title;
+        titleSpan.style.fontWeight = (currentNote && n === currentNote) ? "bold" : "normal";
+        li.appendChild(titleSpan);
+
+        // --- EXIBIR TAGS NA LISTA ---
+        if (n.tags && n.tags.length > 0) {
+            const tagContainer = document.createElement("div");
+            tagContainer.className = "tag-container";
+            
+            n.tags.forEach(tag => {
+                const badge = document.createElement("span");
+                badge.className = "tag-badge";
+                badge.textContent = "#" + tag;
+                tagContainer.appendChild(badge);
+            });
+            li.appendChild(tagContainer);
         }
-        
+        // ---------------------------
+
+        if (n.pinned) li.classList.add("pinned-note");
         li.onclick = () => openNote(n);
         list.appendChild(li);
     };
 
-    // 3. Renderiza os Fixados (se houver)
     if (pinned.length > 0) {
         const sep = document.createElement("div");
         sep.className = "list-separator";
@@ -178,7 +195,6 @@ function renderList(filter = "") {
         pinned.forEach(createItem);
     }
 
-    // 4. Renderiza o resto
     if (others.length > 0) {
         if (pinned.length > 0) {
             const sep = document.createElement("div");
@@ -189,15 +205,20 @@ function renderList(filter = "") {
         others.forEach(createItem);
     }
 }
-
 function openNote(note) {
     currentNote = note;
     titleInput.value = note.title;
     editor.value = note.content || "";
     
-    // Atualiza o botão visualmente
+    // --- CARREGA AS TAGS (Transforma Array em Texto com vírgulas) ---
+    if (note.tags && Array.isArray(note.tags)) {
+        tagsInput.value = note.tags.join(", ");
+    } else {
+        tagsInput.value = "";
+    }
+    // -------------------------------------------------------------
+
     if(btnPin) btnPin.classList.toggle("active", !!note.pinned);
-    
     renderPreview();
     renderList(search.value.toLowerCase());
 }
@@ -275,7 +296,17 @@ titleInput.addEventListener("input", () => {
     if (currentNote) { currentNote.title = titleInput.value; save(); }
 });
 search.addEventListener("input", () => renderList(search.value.toLowerCase()));
-
+// Quando digitar no campo de tags...
+tagsInput.addEventListener("input", () => {
+    if (currentNote) {
+        // Pega o texto, separa por vírgula e limpa os espaços
+        const rawText = tagsInput.value;
+        const tagsArray = rawText.split(",").map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+        
+        currentNote.tags = tagsArray; // Salva na nota
+        save(); // Salva no arquivo
+    }
+});
 if (btnNewNote) btnNewNote.onclick = () => {
     const newNote = { title: "Nota " + new Date().toLocaleTimeString(), content: "" };
     notes.unshift(newNote);

@@ -451,7 +451,40 @@ li.pinned-note {
     color: #f1c40f; /* Fica amarelo quando ativo */
     text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
 }
+/* Campo de Input de Tags */
+#tagsInput {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border: none;
+    outline: none;
+    background: var(--bg-app);
+    color: #888; /* Cor mais suave que o título */
+    border-bottom: 1px solid var(--border-color);
+    font-style: italic;
+}
 
+/* Etiquetas (Badges) na Barra Lateral */
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.tag-badge {
+    font-size: 0.7rem;
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+/* Cor da tag no Modo Escuro */
+body.dark-mode .tag-badge {
+    background-color: #3e3e42;
+    color: #ccc;
+}
 /* Scrollbar estilizada para combinar com dark mode */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg-sidebar); }
