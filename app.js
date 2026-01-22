@@ -368,6 +368,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // Colar Imagem
+// --- COLAR IMAGEM (CORRIGIDO PARA WINDOWS) ---
 editor.addEventListener('paste', async (event) => {
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -375,11 +376,23 @@ editor.addEventListener('paste', async (event) => {
         if (item.kind === 'file' && item.type.includes('image/')) {
             event.preventDefault();
             const buffer = await item.getAsFile().arrayBuffer();
-            const path = await window.electronAPI.saveImage(buffer);
-            if (path) {
-                editor.setRangeText(`![](${path})`, editor.selectionStart, editor.selectionEnd, "end");
+            
+            // 1. Salva a imagem no disco e recebe o caminho "bruto" (Ex: C:\Users\...)
+            const rawPath = await window.electronAPI.saveImage(buffer);
+            
+            if (rawPath) {
+                // 2. TRUQUE: Converte para URL válida do navegador
+                // Troca barras invertidas (\) por normais (/) e adiciona file://
+                const safePath = "file://" + rawPath.replace(/\\/g, "/");
+
+                // 3. Insere o Markdown correto no editor
+                const text = `![](${safePath})`;
+                editor.setRangeText(text, editor.selectionStart, editor.selectionEnd, "end");
+                
+                // 4. Salva e atualiza
                 currentNote.content = editor.value;
-                save(); renderPreview();
+                save();
+                renderPreview();
             }
         }
     }
