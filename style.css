@@ -241,10 +241,217 @@ body {
     transition: all 0.2s;
 }
 
+
 .wiki-link:hover {
     background-color: rgba(78, 201, 176, 0.1);
     border-bottom: 1px solid #4ec9b0;
 }
+
+/* Container do bloco de código */
+.code-block-container {
+    background: #1e1e1e;
+    border-radius: 8px;
+    margin: 15px 0;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+/* Cabeçalho (Onde fica o botão Play) */
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2d2d2d;
+    padding: 5px 15px;
+    font-size: 0.8rem;
+    color: #aaa;
+    border-bottom: 1px solid #333;
+}
+
+/* O botão de executar */
+.run-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: 0.2s;
+}
+
+.run-btn:hover {
+    background: #218838;
+}
+
+/* Ajuste do <pre> para não ter margem extra */
+.code-block-container pre {
+    margin: 0;
+    padding: 15px;
+    background: transparent; /* Usa o fundo do container */
+}
+
+/* --- MODO LEITURA (ESSENCIAL PARA O BOTÃO FUNCIONAR) --- */
+
+/* 1. Botão "Sair" (Fica invisível até entrar no modo leitura) */
+#exitReaderMode {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #ff4757;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2147483647 !important; /* Sempre no topo */
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+}
+
+#exitReaderMode:hover {
+    transform: scale(1.1);
+    background-color: #ff6b81;
+}
+
+/* 2. O QUE ACONTECE QUANDO ATIVA O MODO LEITURA */
+body.reader-mode {
+    overflow-y: auto; /* Permite rolar a página */
+}
+
+/* Esconde tudo o que não é leitura */
+body.reader-mode #sidebar,
+body.reader-mode #title, 
+body.reader-mode .code-header button, /* Esconde botões de executar código para limpar a vista */
+body.reader-mode #editor {
+    display: none !important;
+}
+
+/* Ajusta o container principal */
+body.reader-mode #container {
+    display: block; 
+    height: auto;
+}
+
+body.reader-mode #editorArea {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+/* Centraliza e formata o texto (Papel) */
+body.reader-mode #preview {
+    display: block !important;
+    max-width: 800px;       /* Largura de livro */
+    margin: 0 auto;         /* Centraliza */
+    padding: 60px 20px;     /* Espaço para não colar nas bordas */
+    font-size: 1.2rem;      /* Letra um pouco maior */
+    line-height: 1.8;       /* Mais espaço entre linhas */
+}
+
+/* Mostra o botão de sair */
+body.reader-mode #exitReaderMode {
+    display: block !important;
+}
+
+
+/* Área de Resultado (Console) */
+.code-output {
+    background: #000;
+    color: #ddd;
+    padding: 10px 15px;
+    border-top: 1px solid #333;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap; /* Quebra linha se o texto for longo */
+}
+
+
+/*adiciona a opção de copiar no código*/
+/* Container do cabeçalho do código */
+.code-header {
+    display: flex;
+    justify-content: space-between; /* Texto na esquerda, botões na direita */
+    align-items: center;
+    background: #2d2d2d;
+    padding: 8px 15px; /* Um pouco mais de espaço */
+    font-size: 0.8rem;
+    color: #aaa;
+    border-bottom: 1px solid #333;
+}
+
+/* Agrupa os botões (Copiar e Executar) */
+.code-actions {
+    display: flex;
+    gap: 10px; /* Espaço entre os botões */
+}
+
+/* Estilo padrão para botões do header */
+.run-btn, .copy-btn {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Botão Executar (Verde) */
+.run-btn {
+    background: #238636;
+    color: white;
+}
+.run-btn:hover { background: #2ea043; }
+
+/* Botão Copiar (Cinza sutil) */
+.copy-btn {
+    background: #3c3c3c;
+    color: #d4d4d4;
+    border: 1px solid #555;
+}
+.copy-btn:hover { 
+    background: #4c4c4c;
+    border-color: #777;
+}
+
+/* Estado "Copiado!" (Verde sutil) */
+.copy-btn.copied {
+    background: #238636;
+    color: white;
+    border-color: #238636;
+}
+
+/* Estilo para notas fixadas na lista */
+li.pinned-note {
+    border-left: 4px solid #f1c40f !important; /* Amarelo ouro */
+    background-color: rgba(241, 196, 15, 0.1);
+}
+
+/* Divisor entre Fixados e Outros */
+.list-separator {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #888;
+    margin: 10px 0 5px 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Botão de Fixar (na barra de ferramentas) */
+#btnPin {
+    color: #888;
+}
+#btnPin.active {
+    color: #f1c40f; /* Fica amarelo quando ativo */
+    text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+}
+
 /* Scrollbar estilizada para combinar com dark mode */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg-sidebar); }
