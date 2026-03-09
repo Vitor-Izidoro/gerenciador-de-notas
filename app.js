@@ -228,29 +228,31 @@ if (typeof marked !== 'undefined') {
     const renderer = new marked.Renderer();
 
     renderer.code = ({ text, lang }) => {
+        // 1. Tenta colorir o código (se o highlight.js conhecer a linguagem)
         const validLang = (typeof hljs !== 'undefined' && hljs.getLanguage(lang)) ? lang : 'plaintext';
         const highlighted = (typeof hljs !== 'undefined') ? hljs.highlight(text, { language: validLang }).value : text;
         
         const blockId = "code-" + Math.random().toString(36).substr(2, 9);
-        
-        // 1. Prepara o código seguro para ser copiado/executado
-        // Usamos encodeURIComponent para garantir que caracteres especiais não quebrem o HTML
         const safeCode = btoa(unescape(encodeURIComponent(text)));
         
-        // 2. Botão de Executar (Só para JS e Python)
+        // 2. Verifica se a linguagem é executável (Baseado no que VOCÊ digitou, não na cor)
+        const linguagemDigitada = (lang || '').toLowerCase();
+        const linguagensSuportadas = ['javascript', 'js', 'python', 'py', 'haskell', 'hs', 'prolog', 'pl'];
+        
         let runButton = "";
-        if (validLang === 'javascript' || validLang === 'js' || validLang === 'python' || validLang === 'py') {
-            runButton = `<button class="run-btn" onclick="window.runCodeBlock('${validLang}', '${safeCode}', '${blockId}')">▶️ Executar</button>`;
+        if (linguagensSuportadas.includes(linguagemDigitada)) {
+            runButton = `<button class="run-btn" onclick="window.runCodeBlock('${linguagemDigitada}', '${safeCode}', '${blockId}')">▶️ Executar</button>`;
         }
 
-        // 3. Botão de Copiar (NOVO)
-        // Adicionamos ele sempre, independente da linguagem
         const copyButton = `<button class="copy-btn" onclick="window.copyToClipboard('${safeCode}', this)">📋 Copiar</button>`;
+
+        // Usa a linguagem digitada no cabeçalho, mesmo que a cor caia para plaintext
+        const displayLang = linguagemDigitada || validLang;
 
         return `
             <div class="code-block-container">
                 <div class="code-header">
-                    <span>${validLang}</span>
+                    <span>${displayLang}</span>
                     <div class="code-actions">
                         ${copyButton}
                         ${runButton}
@@ -368,6 +370,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // Colar Imagem
+// --- COLAR IMAGEM (CORRIGIDO PARA WINDOWS) ---
 editor.addEventListener('paste', async (event) => {
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     for (let index in items) {
@@ -375,11 +378,23 @@ editor.addEventListener('paste', async (event) => {
         if (item.kind === 'file' && item.type.includes('image/')) {
             event.preventDefault();
             const buffer = await item.getAsFile().arrayBuffer();
-            const path = await window.electronAPI.saveImage(buffer);
-            if (path) {
-                editor.setRangeText(`![](${path})`, editor.selectionStart, editor.selectionEnd, "end");
+            
+            // 1. Salva a imagem no disco e recebe o caminho "bruto" (Ex: C:\Users\...)
+            const rawPath = await window.electronAPI.saveImage(buffer);
+            
+            if (rawPath) {
+                // 2. TRUQUE: Converte para URL válida do navegador
+                // Troca barras invertidas (\) por normais (/) e adiciona file://
+                const safePath = "file://" + rawPath.replace(/\\/g, "/");
+
+                // 3. Insere o Markdown correto no editor
+                const text = `![](${safePath})`;
+                editor.setRangeText(text, editor.selectionStart, editor.selectionEnd, "end");
+                
+                // 4. Salva e atualiza
                 currentNote.content = editor.value;
-                save(); renderPreview();
+                save();
+                renderPreview();
             }
         }
     }
